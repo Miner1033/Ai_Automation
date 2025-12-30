@@ -1,0 +1,390 @@
+{
+  "name": "Market Research Agent",
+  "nodes": [
+    {
+      "parameters": {
+        "formTitle": "Market Research",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "search_query"
+            },
+            {
+              "fieldLabel": "Location"
+            },
+            {
+              "fieldLabel": "Language"
+            },
+            {
+              "fieldLabel": "business category"
+            },
+            {
+              "fieldLabel": "city_name"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.3,
+      "position": [
+        0,
+        144
+      ],
+      "id": "c8707783-8b15-4fc6-8b9e-235897901f53",
+      "name": "On form submission",
+      "webhookId": "68b057fe-1b54-4be2-b329-ec54d542d6b2"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "fce80176-7f6d-4acc-9e6f-0f72c0f7a6cb",
+              "name": "search_query",
+              "value": "={{ $json.search_query }}",
+              "type": "string"
+            },
+            {
+              "id": "ad9faf80-d0dd-4575-8156-f1fe4bd7855e",
+              "name": "Location",
+              "value": "={{ $json.Location }}",
+              "type": "string"
+            },
+            {
+              "id": "df17605c-2c06-490e-a85f-6a16b9cb3097",
+              "name": "business category",
+              "value": "={{ $json['business category'] }}",
+              "type": "string"
+            },
+            {
+              "id": "4c937481-7709-49d0-a4ef-748f71301132",
+              "name": "city_name",
+              "value": "={{ $json.city_name }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        224,
+        144
+      ],
+      "id": "7318fd62-92ae-4ab7-838b-0903d1fe8fae",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "operation": "google_maps",
+        "q": "={{ $json.search_query }}",
+        "additionalFields": {
+          "hl": "en",
+          "gl": "={{ $json.Location }}"
+        },
+        "requestOptions": {}
+      },
+      "type": "n8n-nodes-serpapi.serpApi",
+      "typeVersion": 1,
+      "position": [
+        448,
+        144
+      ],
+      "id": "aad7d529-95bb-4fd8-a178-aeec511d8074",
+      "name": "Google_maps search",
+      "credentials": {
+        "serpApi": {
+          "id": "H3ASs5mzLmk9QcYp",
+          "name": "1st"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Safe extraction from input JSON\nconst localResults = $json.local_results || [];\n\n// Build userConfig from the same JSON (no external-node reference)\nconst userConfig = {\n  search_query: $json.search_parameters?.q || null,\n  analysis_focus: \"default\",\n  city_name: \"unknown\"\n};\n\nconsole.log(`Processing ${localResults.length} search results for: ${userConfig.search_query}`);\n\n// Extract and filter places\nlet places = localResults.map(place => {\n  return {\n    place_name: place.title || 'Unknown',\n    address: place.address || 'No address',\n    rating: place.rating || 'No rating',\n    reviews_count: place.reviews || 0,\n    reviews_link: place.reviews_link || null,\n    data_id: place.data_id || null,\n    type: place.type || 'Unknown',\n    place_id: place.place_id || null,\n    lsig: place.lsig || null,\n    phone: place.phone || null,\n    website: place.website || null,\n    thumbnail: place.thumbnail || null,\n    operating_hours: place.operating_hours || null,\n    price_level: place.price_level || null,\n    plus_code: place.plus_code || null,\n    coordinates: {\n      lat: place.gps_coordinates?.latitude || null,\n      lng: place.gps_coordinates?.longitude || null\n    },\n    search_context: {\n      original_query: userConfig.search_query,\n      analysis_focus: userConfig.analysis_focus,\n      city: userConfig.city_name,\n      search_timestamp: new Date().toISOString()\n    }\n  };\n}).filter(place => {\n  return (\n    place.reviews_link ||\n    (place.rating && place.rating !== 'No rating') ||\n    place.reviews_count > 0\n  );\n});\n\n// Limit to 5 results\nplaces = places.slice(0, 5);\n\nconsole.log(`Filtered + limited to ${places.length} places`);\n\nreturn places.map(place => ({ json: place }));\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        672,
+        144
+      ],
+      "id": "d6f49cd1-ccbc-4c58-bb67-2eb9f499a5d9",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        896,
+        144
+      ],
+      "id": "ce57efac-23da-4282-88c0-3b8b707570aa",
+      "name": "Loop Over Items"
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.reviews_link }}",
+        "sendQuery": true,
+        "specifyQuery": "json",
+        "jsonQuery": "{\n  \"api_key\": \"6fd123f1589efec75ad7ffc093402f3dd4aa264d9d09acf9927f45b491c403bd\"\n}\n",
+        "options": {
+          "allowUnauthorizedCerts": true,
+          "timeout": 3000
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        1120,
+        280
+      ],
+      "id": "7bc6d25d-5053-4db0-9da3-03cc45f858ac",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "jsCode": "// current item = place_info\nconst currentItem = $json.place_info;\n\n// reviews response = reviews array\nconst reviewsResponse = $json.reviews || [];\n\n// userConfig (example defaults, modify if you have a separate config node)\nconst userConfig = {\n  search_query: \"edtech\",\n  analysis_focus: \"business_analysis\",\n  city_name: \"Irvine, CA\"\n};\n\n// Combine data\nconst combinedData = {\n  place_name: currentItem.title || \"Unknown\",\n  address: currentItem.address || \"No address\",\n  rating: currentItem.rating || \"No rating\",\n  reviews_count: currentItem.reviews || 0,\n  type: currentItem.type || \"Unknown\",\n  phone: currentItem.phone || null,\n  website: currentItem.website || null,\n  coordinates: $json.gps_coordinates || null, // if exists\n  operating_hours: currentItem.operating_hours || null,\n  \n  // Reviews content\n  reviews_content: reviewsResponse.length > 0 ? reviewsResponse : [{ error: \"No reviews available\" }],\n  \n  // Metadata for analysis\n  analysis_metadata: {\n    search_query: userConfig.search_query,\n    analysis_focus: userConfig.analysis_focus,\n    target_city: userConfig.city_name,\n    data_collection_time: new Date().toISOString(),\n    has_reviews: reviewsResponse.length > 0,\n    review_source: $json.google_maps_reviews_url || \"No review link\",\n    place_completeness_score: calculateCompletenessScore(currentItem)\n  }\n};\n\n// Function to calculate completeness\nfunction calculateCompletenessScore(placeData) {\n  const fields = [\"title\", \"address\", \"rating\", \"phone\", \"website\", \"operating_hours\"];\n  const filledFields = fields.filter(f => placeData[f] && placeData[f] !== \"Unknown\" && placeData[f] !== \"No address\");\n  return Math.round((filledFields.length / fields.length) * 100);\n}\n\nreturn { json: combinedData };\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1344,
+        280
+      ],
+      "id": "b92d75b0-c142-4ee8-85ee-f5982621cc5f",
+      "name": "Code in JavaScript1"
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        1120,
+        -48
+      ],
+      "id": "2f114b9f-128a-4c78-ad1c-8bf86539e417",
+      "name": "Aggregate"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get all input items (places)\nconst allPlaces = $input.all();\n\n// Use first input item as configuration\nconst userConfig = $input.item.json;\n\nconsole.log(`Preparing analysis for ${allPlaces.length} ${userConfig.analysis_focus} locations in ${userConfig.city_name}`);\n\n// Create comprehensive analysis dataset\nlet analysisPrompt = `MARKET RESEARCH DATA ANALYSIS\\n`;\nanalysisPrompt += `Research Focus: ${userConfig.analysis_focus}\\n`;\nanalysisPrompt += `Location: ${userConfig.city_name}\\n`;\nanalysisPrompt += `Search Query: \"${userConfig.search_query}\"\\n`;\nanalysisPrompt += `Total Locations Found: ${allPlaces.length}\\n`;\nanalysisPrompt += `Analysis Date: ${new Date().toLocaleDateString('vi-VN')}\\n\\n`;\n\n// Enhanced data summary\nanalysisPrompt += `=== DATASET OVERVIEW ===\\n`;\nlet totalReviews = 0;\nlet avgRating = 0;\nlet placesWithReviews = 0;\nlet completenessScores = [];\n\nallPlaces.forEach((place, index) => {\n  const data = place.json;\n\n  // Calculate statistics\n  if (data.reviews_count && typeof data.reviews_count === 'number') {\n    totalReviews += data.reviews_count;\n  }\n\n  if (data.rating && data.rating !== 'No rating') {\n    avgRating += parseFloat(data.rating) || 0;\n  }\n\n  if (data.reviews_content && Array.isArray(data.reviews_content) && data.reviews_content[0] && !data.reviews_content[0].error) {\n    placesWithReviews++;\n  }\n\n  if (data.analysis_metadata && data.analysis_metadata.place_completeness_score) {\n    completenessScores.push(data.analysis_metadata.place_completeness_score);\n  }\n\n  // Add detailed place information\n  analysisPrompt += `\\n${index + 1}. ${data.place_name}\\n`;\n  analysisPrompt += `   Address: ${data.address}\\n`;\n  analysisPrompt += `   Rating: ${data.rating}/5 (${data.reviews_count || 0} reviews)\\n`;\n\n  // Add contact and operational info if available\n  if (data.phone) analysisPrompt += `   Phone: ${data.phone}\\n`;\n  if (data.website) analysisPrompt += `   Website: ${data.website}\\n`;\n  if (data.operating_hours) analysisPrompt += `   Hours: ${JSON.stringify(data.operating_hours)}\\n`;\n  if (data.price_level) analysisPrompt += `   Price Level: ${data.price_level}\\n`;\n\n  // Add review samples if available\n  if (data.reviews_content && Array.isArray(data.reviews_content)) {\n    const validReviews = data.reviews_content.filter(r => !r.error);\n    if (validReviews.length > 0) {\n      analysisPrompt += `   Recent Reviews:\\n`;\n      validReviews.slice(0, 5).forEach(review => {\n        const reviewText = review.snippet || review.text || review.comment || 'No text available';\n        const reviewRating = review.rating || 'No rating';\n        analysisPrompt += `   - \"${reviewText.substring(0, 200)}...\" (${reviewRating}/5)\\n`;\n      });\n    }\n  }\n\n  analysisPrompt += `   Data Completeness: ${data.analysis_metadata?.place_completeness_score || 'N/A'}%\\n`;\n  analysisPrompt += `\\n${'-'.repeat(60)}\\n`;\n});\n\n// Add summary statistics\nconst avgRatingCalculated = allPlaces.length > 0 ? (avgRating / allPlaces.length).toFixed(2) : 0;\nconst avgCompleteness = completenessScores.length > 0 ?\n  (completenessScores.reduce((a, b) => a + b, 0) / completenessScores.length).toFixed(1) : 'N/A';\n\nanalysisPrompt += `\\n=== SUMMARY STATISTICS ===\\n`;\nanalysisPrompt += `Total Places Analyzed: ${allPlaces.length}\\n`;\nanalysisPrompt += `Places with Review Data: ${placesWithReviews}\\n`;\nanalysisPrompt += `Total Reviews Collected: ${totalReviews}\\n`;\nanalysisPrompt += `Average Rating: ${avgRatingCalculated}/5\\n`;\nanalysisPrompt += `Average Data Completeness: ${avgCompleteness}%\\n`;\n\n// Return output for n8n\nreturn {\n  json: {\n    analysis_prompt: analysisPrompt,\n    raw_data: allPlaces.map(place => place.json),\n    summary_stats: {\n      total_places: allPlaces.length,\n      places_with_reviews: placesWithReviews,\n      total_reviews: totalReviews,\n      average_rating: avgRatingCalculated,\n      average_completeness: avgCompleteness,\n      search_context: userConfig\n    }\n  }\n};\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1344,
+        -48
+      ],
+      "id": "ae6452af-f9f3-448e-bc96-43bacaaeef02",
+      "name": "Code in JavaScript2"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Role:\nYou are an advanced Market Research Intelligence Agent specialized in deep analysis, insight generation, and actionable strategy development. Your job is to transform raw customer data into a comprehensive, high-value market analysis report.\n\nContext:\nYou have received real, user-generated market data about \"{{ $('On form submission').item.json.search_query }}\" in \"{{ $('On form submission').item.json.city_name }}\".\n\nDataset:\n{{ JSON.stringify($json.raw_data, null, 2) }}\n\nYour Mission:\nProduce a complete, insight-driven market analysis report using the structure below.\n\n⚠️ IMPORTANT — OUTPUT REQUIREMENT:\nYour final answer must be in HTML format using the EXACT full HTML template below.  \nOnly replace the content inside the sections — do NOT modify the CSS, layout, tags, or structure.\n\n---------------------------------------\n### 📌 HTML TEMPLATE (Use this EXACT structure)\n\n<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n<meta charset=\"utf-8\" />\n<meta name=\"viewport\" content=\"width=device-width,initial-scale=1\" />\n<title>Market Analysis Report — AI Agent</title>\n<style>\n  body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background:#f6f8fb; margin:0; padding:20px; color:#222; }\n  .wrap { max-width:900px; margin:24px auto; background:#fff; border-radius:12px; box-shadow:0 6px 24px rgba(15,23,42,0.08); overflow:hidden;  }\n  .hero { background:linear-gradient(135deg,#667eea 0%,#764ba2 100%); color:#fff; padding:28px 30px; text-align:center; }\n  .hero h1 { margin:0; font-size:22px; letter-spacing:0.2px; }\n  .hero p { margin:8px 0 0; opacity:0.95; font-size:13px; }\n  .body { padding:28px 34px; line-height:1.55; color:#22303f; }\n  h2 { color:#1f3b7a; border-bottom:2px solid #4aa3ff; padding-bottom:8px; margin-top:28px; }\n  h3 { color:#34495e; margin-top:18px; }\n  .notice { background:#fff9db; border:1px solid #ffecb3; padding:12px 14px; border-radius:8px; margin:14px 0; }\n  .muted { color:#6b7280; font-size:13px; }\n  .footer { background:#263447; color:#fff; padding:18px; text-align:center; border-radius:0 0 12px 12px; margin-top:22px; font-size:13px; }\n  .section { margin-bottom:10px; }\n  .mono { font-family: Menlo, Monaco, monospace; background:#f4f6f8; padding:8px 10px; border-radius:6px; display:inline-block; font-size:13px; }\n</style>\n</head>\n<body>\n  <div class=\"wrap\">\n    <div class=\"hero\">\n      <h1>📊 MARKET ANALYSIS REPORT</h1>\n      <p class=\"muted\">AI Agent — based on provided dataset</p>\n      <div class=\"muted\" style=\"margin-top:8px; font-size:12px;\">Generated: {{ new Date().toLocaleDateString() }}</div>\n    </div>\n\n    <div class=\"body\">\n\n      <div class=\"notice\">\n        <strong>Data Notice:</strong>\n        Automatically generated analysis based on dataset provided for <strong>{{ $('On form submission').item.json.city_name }}</strong>.\n      </div>\n\n      <h2>I. Executive Summary</h2>\n      {{EXECUTIVE_SUMMARY}}\n\n      <h2>II. Market Overview</h2>\n      {{MARKET_OVERVIEW}}\n\n      <h2>III. Customer Experience Analysis</h2>\n      {{CUSTOMER_EXPERIENCE}}\n\n      <h2>IV. Competitive Landscape</h2>\n      {{COMPETITIVE_LANDSCAPE}}\n\n      <h2>V. Insights & Trends</h2>\n      {{INSIGHTS_TRENDS}}\n\n      <h2>VI. Strategic Recommendations</h2>\n      {{STRATEGIC_RECOMMENDATIONS}}\n\n      <h2>VII. Action Plan</h2>\n      {{ACTION_PLAN}}\n\n      <p class=\"muted\" style=\"margin-top:14px;\">If you want this as PDF, PPTX, or branded report, specify the format.</p>\n\n    </div>\n\n    <div class=\"footer\">\n      <div style=\"font-weight:600\">🚀 Market Research Analytics System</div>\n      <div style=\"margin-top:6px;\">\n        Query: <span class=\"mono\">{{ $('On form submission').item.json.search_query }}</span>  \n        • Location: <span class=\"mono\">{{ $('On form submission').item.json.city_name }}</span>\n      </div>\n    </div>\n  </div>\n</body>\n</html>\n\n---------------------------------------\n\n### Report Content Rules\nFill these sections using dataset insights:\n\nI. Executive Summary  \n3–4 sentences, biggest opportunities, and actions.\n\nII. Market Overview  \nMarket size, density, pricing, hot areas, gaps.\n\nIII. Customer Experience Analysis  \nTop appreciation (%), problems (frequency), sentiment.\n\nIV. Competitive Landscape  \n3–5 main competitors with strengths, weaknesses, pricing, gaps.\n\nV. Insights & Trends  \nHuman behavior, trends, seasonal effects, tech readiness.\n\nVI. Strategic Recommendations  \nBusiness model, pricing, marketing, operations, investment.\n\nVII. Action Plan  \n3 immediate, 3 mid-term, long-term strategy.\n\n---------------------------------------\n\n⚠️ Final Output Format:\nReturn ONLY the full HTML page. No explanations. No markdown. No comments.\n",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        1568,
+        -48
+      ],
+      "id": "59428928-d35d-46ac-83ce-c5c999ff9eb8",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "sendTo": "minerhossainrimon1033@gmail.com",
+        "subject": "=Market research for {{ $('On form submission').item.json.search_query }}",
+        "message": "={{ $json.output }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        1920,
+        -48
+      ],
+      "id": "fa1da829-72f1-437b-93b0-324f77f348f1",
+      "name": "Send a message",
+      "webhookId": "d3902604-d929-46d6-ad06-fb5988ca5d68",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "zqHvTTKvfZi6vGVx",
+          "name": "Gmail account 537"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        1640,
+        176
+      ],
+      "id": "2f20f7d9-c7bf-4805-b408-1b420851b5cf",
+      "name": "Google Gemini Chat Model1",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "ZwBzOzlOZzcXo8vQ",
+          "name": "Google Gemini(PaLM) Api account 721"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "On form submission": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Google_maps search",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google_maps search": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [
+          {
+            "node": "Aggregate",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript1": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript2": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "8273810f-e3ab-4d9f-9b25-dabfb4c4e01f",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "8aa7a6b00703250dcbefcb510baac06d8bd02203b4f9c49a6f275db8e3adde34"
+  },
+  "id": "4OLgWknOFGqmAsnT",
+  "tags": []
+}

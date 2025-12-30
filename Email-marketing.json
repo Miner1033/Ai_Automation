@@ -1,0 +1,332 @@
+{
+  "name": "Email-marketing",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        -8
+      ],
+      "id": "62154645-c5be-4b32-aff6-cd0eb9f61fb2",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1sKMC6zk35jfSsbhKuxU9o5fk9KrxlqmP0_UXHBYdX28",
+          "mode": "list",
+          "cachedResultName": "email_marketing",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1sKMC6zk35jfSsbhKuxU9o5fk9KrxlqmP0_UXHBYdX28/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1sKMC6zk35jfSsbhKuxU9o5fk9KrxlqmP0_UXHBYdX28/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        224,
+        -8
+      ],
+      "id": "05864b94-69a7-4c62-ad96-546fc3d5024e",
+      "name": "Get row(s) in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "Z2tFcCPcueAT3W1y",
+          "name": "Google Sheets account 622"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Get row(s) in sheet').item.json.email }}",
+        "subject": "marketing",
+        "emailType": "text",
+        "message": "=hey {{ $json.name }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        1120,
+        -80
+      ],
+      "id": "581993c3-5864-4d2d-a0e5-a3ae27c3e27c",
+      "name": "Send a message",
+      "webhookId": "cdc8f5f7-b078-4b54-ad3f-c8511a077b39",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "zqHvTTKvfZi6vGVx",
+          "name": "Gmail account 537"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        896,
+        -8
+      ],
+      "id": "a9bb9583-bcd2-4ddd-9e19-7625c61aa21d",
+      "name": "Loop Over Items"
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "1sKMC6zk35jfSsbhKuxU9o5fk9KrxlqmP0_UXHBYdX28",
+          "mode": "list",
+          "cachedResultName": "email_marketing",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1sKMC6zk35jfSsbhKuxU9o5fk9KrxlqmP0_UXHBYdX28/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1sKMC6zk35jfSsbhKuxU9o5fk9KrxlqmP0_UXHBYdX28/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "name": "={{ $('Loop Over Items').item.json.name }}",
+            "sent time": "={{ $now }}",
+            "email sent?": "yes"
+          },
+          "matchingColumns": [
+            "name"
+          ],
+          "schema": [
+            {
+              "id": "name",
+              "displayName": "name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "email",
+              "displayName": "email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "email sent?",
+              "displayName": "email sent?",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "sent time",
+              "displayName": "sent time",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1344,
+        -80
+      ],
+      "id": "4a3ae8e6-85dc-4832-8847-e77223ca1d3e",
+      "name": "Append or update row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "Z2tFcCPcueAT3W1y",
+          "name": "Google Sheets account 622"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1568,
+        -8
+      ],
+      "id": "73586ce2-9cfd-422e-9c44-f27749a95996",
+      "name": "Wait",
+      "webhookId": "feb6d0fa-875e-41e3-9d93-cbd471fac983"
+    },
+    {
+      "parameters": {
+        "maxItems": 5
+      },
+      "type": "n8n-nodes-base.limit",
+      "typeVersion": 1,
+      "position": [
+        672,
+        -8
+      ],
+      "id": "de68574a-6bf5-4e67-87d9-f467c4294de5",
+      "name": "Limit"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "3b628b4e-fc31-4841-9a7b-948b5b416186",
+              "leftValue": "={{ $json['email sent?'] }}",
+              "rightValue": "yes",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.2,
+      "position": [
+        448,
+        -8
+      ],
+      "id": "019ef4b9-6297-41ad-b21a-d929adf5b14e",
+      "name": "Filter"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message": {
+      "main": [
+        [
+          {
+            "node": "Append or update row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet": {
+      "main": [
+        [
+          {
+            "node": "Filter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append or update row in sheet": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Limit": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter": {
+      "main": [
+        [
+          {
+            "node": "Limit",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "0c08b830-eafa-42c5-a1f3-47fa975a00ec",
+  "meta": {
+    "instanceId": "8aa7a6b00703250dcbefcb510baac06d8bd02203b4f9c49a6f275db8e3adde34"
+  },
+  "id": "x2wPlyzEB2ULk6Ua",
+  "tags": []
+}

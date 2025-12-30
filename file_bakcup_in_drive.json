@@ -1,0 +1,221 @@
+{
+  "name": "file_bakcup_in_drive",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -144,
+        -16
+      ],
+      "id": "c1cb530a-0139-4f8b-9fbc-048f4f5ab6dd",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "name": "={{ $json.name }}",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "={{ $('folder creation').item.json.id }}",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        976,
+        -16
+      ],
+      "id": "2e364c43-39bc-4bd4-bfd1-3642ae4f0a47",
+      "name": "Upload file",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "MYCLrbC556vatklZ",
+          "name": "latest 1"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.dateTime",
+      "typeVersion": 2,
+      "position": [
+        80,
+        -16
+      ],
+      "id": "6855f5be-cbb7-4191-984e-f66a7d77a884",
+      "name": "Date & Time"
+    },
+    {
+      "parameters": {
+        "resource": "folder",
+        "name": "={{ $json.currentDate }}",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "15OjvpkugJu4T8C6F19iKARsXg0McMgn4",
+          "mode": "list",
+          "cachedResultName": "rimon_n8n backup",
+          "cachedResultUrl": "https://drive.google.com/drive/folders/15OjvpkugJu4T8C6F19iKARsXg0McMgn4"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        304,
+        -16
+      ],
+      "id": "fa49f5f7-1a84-4c25-ab06-88700c285e1b",
+      "name": "folder creation",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "MYCLrbC556vatklZ",
+          "name": "latest 1"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "fileFolder",
+        "returnAll": true,
+        "filter": {
+          "folderId": {
+            "__rl": true,
+            "value": "1wJN_x36qkeNP7xuAez4QTvML1ButsYr_",
+            "mode": "list",
+            "cachedResultName": "rimon_n8n",
+            "cachedResultUrl": "https://drive.google.com/drive/folders/1wJN_x36qkeNP7xuAez4QTvML1ButsYr_"
+          }
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        528,
+        -16
+      ],
+      "id": "19df4691-7834-4c25-8a04-16c30838791f",
+      "name": "get file",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "MYCLrbC556vatklZ",
+          "name": "latest 1"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ $json.id }}",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        752,
+        -16
+      ],
+      "id": "4cea4613-b22d-48f5-8ac5-d0c14904dc03",
+      "name": "Download",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "MYCLrbC556vatklZ",
+          "name": "latest 1"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Date & Time",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload file": {
+      "main": [
+        []
+      ]
+    },
+    "Date & Time": {
+      "main": [
+        [
+          {
+            "node": "folder creation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "folder creation": {
+      "main": [
+        [
+          {
+            "node": "get file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "get file": {
+      "main": [
+        [
+          {
+            "node": "Download",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download": {
+      "main": [
+        [
+          {
+            "node": "Upload file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "6c523edb-68de-40b5-820e-c6434807dacd",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "8aa7a6b00703250dcbefcb510baac06d8bd02203b4f9c49a6f275db8e3adde34"
+  },
+  "id": "C0ZmEzIfEHYDhqoT",
+  "tags": []
+}

@@ -1,0 +1,262 @@
+{
+  "name": "Multi-agent",
+  "nodes": [
+    {
+      "parameters": {
+        "formTitle": "Linkedin",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "email",
+              "fieldType": "email"
+            },
+            {
+              "fieldLabel": "post topic"
+            },
+            {
+              "fieldLabel": "type of audience"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.3,
+      "position": [
+        -112,
+        0
+      ],
+      "id": "f07ea6a5-02ac-4b73-b27b-9bb22207316a",
+      "name": "On form submission",
+      "webhookId": "431c057f-f059-466d-bc33-c40212c8165b"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=topic: {{ $json['post topic'] }}\ncategory:{{ $json['type of audience'] }}",
+        "options": {
+          "systemMessage": "#role\nGenerate LinkedIn posts that are professional, insightful, and highly engaging — crafted to fit any topic, industry, or audience.\n\n\n⚙️ Workflow\nWhenever a topic is provided, follow this end-to-end process:\n\n1. Research with Tavily\n\nUse the Tavily search tool for real-time, reliable data.\n\nCollect the newest and most credible insights.\n\nPrioritize facts, statistics, trends, expert opinions, and case studies that meaningfully elevate the post.\n\n\n\n2. Craft the LinkedIn Post\n\nBegin with a powerful hook to capture attention instantly.\n\nMaintain a professional, confident, and value-driven tone.\n\nKeep it clean and easy to read — short paragraphs, logical structure, smooth flow.\n\nFocus on educational, practical, and actionable insights.\n\nUse emojis sparingly and only when they add clarity or emphasis.\n\nAttribute information properly (e.g., “according to [source]”).\n\nEnd with a clear call to action encouraging comments, opinions, or shares.\n\nAdd relevant, topic-specific hashtags to maximize reach.\n\n\n📝 Output Rules\n\nOutput only the final LinkedIn post.\n\nDo not describe your process or mention the steps used.\n\nAvoid quotation marks or unnecessary formatting — write naturally as a LinkedIn post.\n\n📌 Example Scenario\nTopic: The ROI of warehouse automation\n→ You research up-to-date data, trends, and real success stories.\n→ Then craft a polished LinkedIn post with a sharp hook, strong insights, and a compelling CTA."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        112,
+        0
+      ],
+      "id": "0d7f48b1-5d26-409e-9c53-bcde7eb020fb",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        184,
+        224
+      ],
+      "id": "87aa0ba9-823b-4aa9-aa15-1177d34be047",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "ZwBzOzlOZzcXo8vQ",
+          "name": "Google Gemini(PaLM) Api account 721"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=linkedin post details:  {{ $json.output }}",
+        "options": {
+          "systemMessage": "Purpose\nYou are an AI agent that converts LinkedIn posts into high-quality visual prompt descriptions. These descriptions will be used by a text-to-image engine to generate professional marketing graphics that visually strengthen the original LinkedIn content. also remove pollination.ai watermark or logo when generate any images\n\nCore Objectives\n\nAnalyze the LinkedIn post and extract its central message or insight.\n\nTranslate that message into a clear, compelling visual concept.\n\nProduce a prompt suitable for creating polished, brand-consistent marketing graphics.\n\nAvoid literal or hyperrealistic imagery; focus on modern professional design. \n\nVisual Standards\n\n\nThe generated visual prompt must:\n\nReinforce the key idea of the post\n\nFit LinkedIn’s modern aesthetic: clean, minimalist, professional\n\nUse current design trends and polished composition\n\nFeel intentional, branded, and marketing-oriented\n\nOutput Rules\n\nOutput only the final visual prompt — no explanations or extra text\n\nNo placeholders (e.g., “header goes here”)\n\nInclude numerical stats that appear in the post\n\nDo not use quotation marks around the prompt\n\nThe result must be directly usable in a text-to-image generator\n\n\n\nDesign Language & Allowed Elements\nThink like a senior brand designer. Your prompts may include:\n\nFlat or minimalist illustrations\n\nAbstract shapes, gradients, or modern geometric elements\n\nInfographic-style visuals (charts, percentages, metrics)\n\nConceptual metaphors (e.g., mountain = growth, bridge = opportunity)\n\nLight typography references (e.g., “space for headline text”)\n\nLayout hints (e.g., “split-screen composition,” “center-focused design”)\n\nOptional enhancements: soft shadows, motion lines, UI-style panels\n\nPrompt Style Example\nModern flat-design illustration of a glowing lightbulb emerging from a maze, symbolizing innovation through complexity. Clean gradient background with empty top-right space for headline text and subtle data visual elements on the left."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        464,
+        0
+      ],
+      "id": "78acf14e-a310-4b93-afe6-b5bade428d1b",
+      "name": "AI Agent1"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=linkedin post desciption:{{ $json.output }}",
+        "options": {
+          "systemMessage": "Your task is to create high-impact LinkedIn post titles. Each title must follow these rules:\n\nMaximum length: 20–30 words\n\nMust be hooky, engaging, and attention-grabbing\n\nUse strong verbs, curiosity gaps, and clear value\n\nAvoid clickbait or exaggeration\n\nMatch the tone of professional LinkedIn content\n\nReflect the core idea or insight of the provided post\n\nAlways return only 1 unique title."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        816,
+        0
+      ],
+      "id": "5f2a79c2-3a35-48a8-82cc-ccd341dc8c1b",
+      "name": "AI Agent2"
+    },
+    {
+      "parameters": {
+        "url": "=https://image.pollinations.ai/prompt/ {{ $json.output }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        1168,
+        0
+      ],
+      "id": "0a4b2cd9-6e22-4651-b1ce-49c45c91d81b",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "person": "ipEPvuSmk4",
+        "text": "={{ $('AI Agent').item.json.output }}",
+        "shareMediaCategory": "IMAGE",
+        "additionalFields": {
+          "title": "={{ $('AI Agent2').item.json.output }}"
+        }
+      },
+      "type": "n8n-nodes-base.linkedIn",
+      "typeVersion": 1,
+      "position": [
+        1392,
+        0
+      ],
+      "id": "2a6adf19-6cbb-4759-ab28-407dce31f9da",
+      "name": "Create a post",
+      "credentials": {
+        "linkedInOAuth2Api": {
+          "id": "Yjwje7E7aw2pIE6h",
+          "name": "LinkedIn account 27"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@tavily/n8n-nodes-tavily.tavilyTool",
+      "typeVersion": 1,
+      "position": [
+        272,
+        208
+      ],
+      "id": "d703caac-d314-46bc-9399-a1a8acb64186",
+      "name": "Search in Tavily",
+      "credentials": {
+        "tavilyApi": {
+          "id": "JoOuzTWCoAbOfYZr",
+          "name": "1st"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "On form submission": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "AI Agent1",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "AI Agent2",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent1": {
+      "main": [
+        [
+          {
+            "node": "AI Agent2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent2": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Create a post",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search in Tavily": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "2dcfface-ab3a-494c-a154-f9f32022d6da",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "8aa7a6b00703250dcbefcb510baac06d8bd02203b4f9c49a6f275db8e3adde34"
+  },
+  "id": "KPBfY3RNVXKfogZ3",
+  "tags": []
+}

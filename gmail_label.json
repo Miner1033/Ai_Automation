@@ -1,0 +1,179 @@
+{
+  "name": "gmail_label",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "simple": false,
+        "filters": {},
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        0,
+        0
+      ],
+      "id": "e00d2546-7851-4332-bbb5-a7260bdabe66",
+      "name": "Gmail Trigger",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "zqHvTTKvfZi6vGVx",
+          "name": "Gmail account 537"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "inputText": "={{ $json.text }}",
+        "categories": {
+          "categories": [
+            {
+              "category": "PRIORITY",
+              "description": "Urgent communications requiring immediate review or time-sensitive actions. Includes critical updates, emergency requests, and priority tasks."
+            },
+            {
+              "category": "SPONSORSHIP",
+              "description": "Time-critical sponsorship communications requiring immediate review or action to avoid financial, contractual, or significant opportunity loss. Characterized by deadlines, urgent requests, and critical issues related to active sponsorship agreements."
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.textClassifier",
+      "typeVersion": 1.1,
+      "position": [
+        208,
+        0
+      ],
+      "id": "1daaf001-96f9-4d7e-9186-325774499fdc",
+      "name": "Text Classifier"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        144,
+        208
+      ],
+      "id": "2b0a7969-a5e0-4e78-aa93-8c08b6aa72fe",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "ZwBzOzlOZzcXo8vQ",
+          "name": "Google Gemini(PaLM) Api account 721"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "addLabels",
+        "messageId": "={{ $json.id }}",
+        "labelIds": [
+          "Label_3129637833212229502"
+        ]
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        560,
+        -16
+      ],
+      "id": "8cd49180-9929-4b38-9d9c-004b38621a9b",
+      "name": "Add label to message",
+      "webhookId": "830e2e0a-c6f9-4a4e-a232-ca24a016ace3",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "zqHvTTKvfZi6vGVx",
+          "name": "Gmail account 537"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "addLabels",
+        "messageId": "={{ $json.id }}",
+        "labelIds": [
+          "Label_5048089239386134996"
+        ]
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        528,
+        224
+      ],
+      "id": "1e353f1c-8f19-4f56-8c07-0a0ccf5539e8",
+      "name": "Add label to message1",
+      "webhookId": "830e2e0a-c6f9-4a4e-a232-ca24a016ace3",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "zqHvTTKvfZi6vGVx",
+          "name": "Gmail account 537"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Gmail Trigger": {
+      "main": [
+        [
+          {
+            "node": "Text Classifier",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Text Classifier",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Text Classifier": {
+      "main": [
+        [
+          {
+            "node": "Add label to message",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Add label to message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "6faaa64c-7961-459a-b021-e8fee7a0ba6a",
+  "meta": {
+    "instanceId": "8aa7a6b00703250dcbefcb510baac06d8bd02203b4f9c49a6f275db8e3adde34"
+  },
+  "id": "waoaImG4x9HkBymM",
+  "tags": []
+}

@@ -1,0 +1,287 @@
+{
+  "name": "hablu",
+  "nodes": [
+    {
+      "parameters": {
+        "formTitle": "hablu",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "name",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "email",
+              "fieldType": "email",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "interest",
+              "requiredField": true
+            }
+          ]
+        },
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.3,
+      "position": [
+        0,
+        0
+      ],
+      "id": "94734b1b-b4c6-404a-9162-6cb5751d3114",
+      "name": "On form submission",
+      "webhookId": "bbb59aa1-113c-4300-83cb-aa0b90dc7a18"
+    },
+    {
+      "parameters": {
+        "operation": "create",
+        "base": {
+          "__rl": true,
+          "value": "app1uvOdcmrhU2WAT",
+          "mode": "list",
+          "cachedResultName": "Leads",
+          "cachedResultUrl": "https://airtable.com/app1uvOdcmrhU2WAT"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblR5ETnMAZPGygf4",
+          "mode": "list",
+          "cachedResultName": "leads",
+          "cachedResultUrl": "https://airtable.com/app1uvOdcmrhU2WAT/tblR5ETnMAZPGygf4"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Name": "={{ $json.name }}",
+            "Email": "={{ $json.email }}",
+            "Interest": "={{ $json.interest }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Name",
+              "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Interest",
+              "displayName": "Interest",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Created At",
+              "displayName": "Created At",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        224,
+        0
+      ],
+      "id": "f242d2e9-2a73-41d5-9a87-51b50f123481",
+      "name": "Create a record",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "LiwA3MZtJsKUNvBJ",
+          "name": "y"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=`Generate a personalized welcome email.\n\nUse this data:\nName:{{ $json.fields.Name }}\nEmail: {{ $json.fields.Email }}\nInterest: \n{{ $json.fields.Interest }}\nWrite a short friendly welcome email.`",
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.7,
+      "position": [
+        448,
+        0
+      ],
+      "id": "8f089987-d337-4ab6-a1df-b4411d602a85",
+      "name": "Basic LLM Chain"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        520,
+        224
+      ],
+      "id": "5f3bb541-5450-411d-9d56-dbfc8025dff3",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "ZwBzOzlOZzcXo8vQ",
+          "name": "Google Gemini(PaLM) Api account 721"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('On form submission').item.json.email }}",
+        "subject": "confirmation",
+        "emailType": "text",
+        "message": "=Subject: \"Welcome {{ $('On form submission').item.json.name }}  — Your {{ $('On form submission').item.json.interest }} Journey Starts Here!\"\n\nHi {{ $('On form submission').item.json.name }} ,\n\nThank you for signing up! We’re excited to have you with us, and it's great to know you're interested in \n{{ $('On form submission').item.json.interest }}.\nWe’ll be sharing helpful tips, beginner-friendly resources, and step-by-step guides to help you grow in {{ $('On form submission').item.json.interest }}.\nLooking forward to learning together.\n\nBest regards,\nLearn ML with Miner",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        800,
+        0
+      ],
+      "id": "91020581-f07e-4c1c-a522-89b4eb4a6123",
+      "name": "Send a message",
+      "webhookId": "ffafaafe-e81e-4063-ac37-894010c6f10b",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "zqHvTTKvfZi6vGVx",
+          "name": "Gmail account 537"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C09UPTNF0SX",
+          "mode": "list",
+          "cachedResultName": "practice-1"
+        },
+        "text": "=\nNew lead received: name and email {{ $('Create a record').item.json.fields.Name }} – Email sent successfully.{{ $('Create a record').item.json.fields.Email }}",
+        "otherOptions": {}
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        1024,
+        0
+      ],
+      "id": "991f90e5-8f94-4b10-be5a-b85e50c740a6",
+      "name": "Send a message1",
+      "webhookId": "806e0f1b-aa9e-4d68-b67a-73e6be492a57",
+      "credentials": {
+        "slackApi": {
+          "id": "ThSrK3NrXyzskgOi",
+          "name": "practice"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "On form submission": {
+      "main": [
+        [
+          {
+            "node": "Create a record",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a record": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message": {
+      "main": [
+        [
+          {
+            "node": "Send a message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "277cbd1d-f9bb-4bd4-96d9-97ddaa1d14c5",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "8aa7a6b00703250dcbefcb510baac06d8bd02203b4f9c49a6f275db8e3adde34"
+  },
+  "id": "OuIiT0rvNPCPIdnF",
+  "tags": []
+}

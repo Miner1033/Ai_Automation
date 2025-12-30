@@ -1,0 +1,175 @@
+{
+  "name": "Instagram post using chat bot",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "640a9777-0708-4a5f-8538-aa2021fb6181",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -160,
+        -96
+      ],
+      "id": "6f04d9b6-68ed-41d5-9a84-0ce2218ff0c0",
+      "name": "Webhook",
+      "webhookId": "640a9777-0708-4a5f-8538-aa2021fb6181"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are an Instagram Post Maker Agent.\n\nInput:\nTopic: {{ $('Webhook').item.json.body.topic }}\n\nTask:\n1. Generate a short, catchy Instagram caption based on the topic.\n2. Use simple and clear English that anyone can understand.\n3. Keep the tone motivating, friendly, and engaging.\n4. Use a maximum of 3 emojis (or no emojis if not needed).\n5. Add a clear call-to-action such as: Save, Share, or Follow.\n6. Generate 10–15 relevant Instagram hashtags.\n7. Hashtags must be lowercase and directly related to the topic.\n8. Do not add explanations or extra text.\n9. Return the result in plain text only.\n\nOutput Format (must follow exactly):\n\nCaption:\n<generated caption>\n\nHashtags:\n#hashtag1 #hashtag2 #hashtag3 #hashtag4 #hashtag5 #hashtag6 #hashtag7 #hashtag8 #hashtag9 #hashtag10\n",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        64,
+        -96
+      ],
+      "id": "c2434e24-cd6c-43b6-982c-2fba95809530",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        144,
+        128
+      ],
+      "id": "2cf86153-0153-4908-8a6c-671f275f0cc0",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "QEUJqOrmivls9c38",
+          "name": "ai_1"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1QZl3Am_rmcX5suOOwOef7-gpqpKxvzDxDPZucDHlIPY",
+          "mode": "list",
+          "cachedResultName": "insta_caption generator",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1QZl3Am_rmcX5suOOwOef7-gpqpKxvzDxDPZucDHlIPY/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1QZl3Am_rmcX5suOOwOef7-gpqpKxvzDxDPZucDHlIPY/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "topic name": "={{ $('Webhook').item.json.body.topic }}",
+            "topic caption": "={{ $json.output }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "topic name",
+              "displayName": "topic name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "topic caption",
+              "displayName": "topic caption",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        416,
+        -96
+      ],
+      "id": "d6a18061-34f0-4e35-ac7d-a1dbf247644f",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "Z2tFcCPcueAT3W1y",
+          "name": "Google Sheets account 622"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "timeSavedMode": "fixed",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "versionId": "2c0afe46-947f-491b-abdf-7fda6f7f05a3",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "8aa7a6b00703250dcbefcb510baac06d8bd02203b4f9c49a6f275db8e3adde34"
+  },
+  "id": "NI0ggoRPx1ytfy6y",
+  "tags": []
+}

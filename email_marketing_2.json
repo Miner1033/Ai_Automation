@@ -1,0 +1,257 @@
+{
+  "name": "email_marketing_2",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        144
+      ],
+      "id": "9c1d5902-37f4-4427-9155-7e8e984cabe7",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1EuahpCtV1TVTUC7plES9DFYOcfdp0GoYmdYBevQn-eY",
+          "mode": "list",
+          "cachedResultName": "Email_marketing",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1EuahpCtV1TVTUC7plES9DFYOcfdp0GoYmdYBevQn-eY/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1EuahpCtV1TVTUC7plES9DFYOcfdp0GoYmdYBevQn-eY/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        224,
+        144
+      ],
+      "id": "a33b33c5-77b3-4286-bf9d-e81dda4be0ca",
+      "name": "Get row(s) in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "Z2tFcCPcueAT3W1y",
+          "name": "Google Sheets account 622"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        448,
+        144
+      ],
+      "id": "84960d0d-89fa-4b74-8ed9-6c2195b09363",
+      "name": "Loop Over Items"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json.email }}",
+        "subject": "Gen Z it zone offer",
+        "emailType": "text",
+        "message": "=✉️ Welcome Message (Professional)\n\nSubject: Welcome on Board – GEN Z IT ZONE 🎉\n\nHello,\n\nWelcome on board!\nWe are happy to have you as a part of GEN Z IT ZONE.\n\nWe look forward to working together and growing as a team.\nIf you need any support, feel free to reach out.\n\nOnce again, welcome to GEN Z IT ZONE!\n\nBest regards,\nGEN Z IT ZONE Team give html format",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        672,
+        72
+      ],
+      "id": "93fc2f05-baed-4ee1-86c0-47291b251742",
+      "name": "Send a message",
+      "webhookId": "0bd1fc33-1b7c-412c-8a07-e2bd4942addd",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "zqHvTTKvfZi6vGVx",
+          "name": "Gmail account 537"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1EuahpCtV1TVTUC7plES9DFYOcfdp0GoYmdYBevQn-eY",
+          "mode": "list",
+          "cachedResultName": "Email_marketing",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1EuahpCtV1TVTUC7plES9DFYOcfdp0GoYmdYBevQn-eY/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1EuahpCtV1TVTUC7plES9DFYOcfdp0GoYmdYBevQn-eY/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "email": "={{ $('Loop Over Items').item.json.email }}",
+            "status": "verfied"
+          },
+          "matchingColumns": [
+            "email"
+          ],
+          "schema": [
+            {
+              "id": "email",
+              "displayName": "email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1120,
+        144
+      ],
+      "id": "39ae3ed6-8ea1-4be2-ad34-2b2a17ff4b23",
+      "name": "Update row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "Z2tFcCPcueAT3W1y",
+          "name": "Google Sheets account 622"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        896,
+        72
+      ],
+      "id": "cb99159e-f57c-4194-8484-e43366214a55",
+      "name": "Wait",
+      "webhookId": "b13e537f-1eb3-4b7f-b16e-4e6964a72464"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update row in sheet": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "Update row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "038706ca-88f6-4fce-9d67-c740b2e6b1b3",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "8aa7a6b00703250dcbefcb510baac06d8bd02203b4f9c49a6f275db8e3adde34"
+  },
+  "id": "4WWZpk2OrArx529T",
+  "tags": []
+}

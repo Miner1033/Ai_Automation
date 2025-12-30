@@ -1,0 +1,145 @@
+{
+  "name": "weather_to_gmail",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -48,
+        0
+      ],
+      "id": "d207d6c8-924a-49a1-8c03-198b835a3d3a",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "\"You are a friendly weather news teller. Give me weather updates in simple words, like a short news report. Tell temperature, rain chance, wind, and what I should do (যেমন ছাতা নেওয়া লাগবে কি না). Make it clear and easy to understand.\"",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        176,
+        96
+      ],
+      "id": "67834b65-5d88-43e3-80e9-0dd8c2140280",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        96,
+        320
+      ],
+      "id": "d7789ce5-0f03-45db-89a4-208f593c697a",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "ZwBzOzlOZzcXo8vQ",
+          "name": "Google Gemini(PaLM) Api account 721"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "http://api.weatherapi.com/v1/current.json?key=a7c9e2d622a84e79a0c191153250811&q=Dhaka",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -48,
+        192
+      ],
+      "id": "0721d406-655b-4fca-81bd-6bdee8a66411",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "sendTo": "minerhossainrimon1033@gmail.com",
+        "subject": "weather",
+        "emailType": "text",
+        "message": "={{ $json.output }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        528,
+        96
+      ],
+      "id": "21ec0122-29d7-430c-aded-03edab5e011a",
+      "name": "Send a message",
+      "webhookId": "f0824a19-f8ad-4dc1-91d4-f4ef40edde0c",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "zqHvTTKvfZi6vGVx",
+          "name": "Gmail account 537"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "35f79db1-d6ff-4367-963f-1a6b9c81c47f",
+  "meta": {
+    "instanceId": "8aa7a6b00703250dcbefcb510baac06d8bd02203b4f9c49a6f275db8e3adde34"
+  },
+  "id": "HiprZq3A8edz4bNM",
+  "tags": []
+}

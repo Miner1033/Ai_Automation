@@ -1,0 +1,233 @@
+{
+  "name": "Daily weather bot",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 7
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        96
+      ],
+      "id": "21c70fee-650f-40e6-8b03-ca963aebfd7f",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "url": "http://api.weatherapi.com/v1/current.json",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "key",
+              "value": "a7c9e2d622a84e79a0c191153250811"
+            },
+            {
+              "name": "q",
+              "value": "Sylhet"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        224,
+        96
+      ],
+      "id": "87562be8-9960-41b7-a265-bafdcb9967d5",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.data }}",
+        "messages": {
+          "messageValues": [
+            {
+              "message": "🌤 Weather in Sylhet, Bangladesh 🌡 Temperature: 25°C ☀ Condition: Sunny 💨 Wind: North at 3.6 km/h 💧 Humidity: 62% ⏰ Last Update: 4:30 PM, 24 Nov 2025"
+            }
+          ]
+        },
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.7,
+      "position": [
+        672,
+        96
+      ],
+      "id": "fa7519f8-519c-420e-8a26-43ffbd052d6f",
+      "name": "Basic LLM Chain"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        744,
+        320
+      ],
+      "id": "23dc7d21-dd8d-42d6-b95d-43514afea6a2",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "ZwBzOzlOZzcXo8vQ",
+          "name": "Google Gemini(PaLM) Api account 721"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        448,
+        96
+      ],
+      "id": "c4815ab4-f68e-4114-9e75-13dd1f1942f3",
+      "name": "Aggregate"
+    },
+    {
+      "parameters": {
+        "chatId": "7023162452",
+        "text": "={{ $json.text }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1024,
+        96
+      ],
+      "id": "129d5b06-2b4d-4cd0-94e0-dbb3fa8ce8c1",
+      "name": "Send a text message",
+      "webhookId": "ea7b6470-e6f3-4907-8f5f-581354087bf3",
+      "credentials": {
+        "telegramApi": {
+          "id": "UcgCUXLwj0h2Xemc",
+          "name": "new qu"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "minerhossainrimon1033@gmail.com",
+        "subject": "weather",
+        "emailType": "text",
+        "message": "={{ $json.result.text }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        1248,
+        96
+      ],
+      "id": "253ec4dc-04d3-4bbd-b8b0-23f2d871099c",
+      "name": "Send a message",
+      "webhookId": "5e6cda7c-a35f-491d-90c4-da25b89a1125",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "zqHvTTKvfZi6vGVx",
+          "name": "Gmail account 537"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Aggregate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a text message": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "9c10453a-2af2-4ddc-a47b-636666b90bea",
+  "meta": {
+    "instanceId": "8aa7a6b00703250dcbefcb510baac06d8bd02203b4f9c49a6f275db8e3adde34"
+  },
+  "id": "dU8GbLcQnwAUd8Wd",
+  "tags": []
+}

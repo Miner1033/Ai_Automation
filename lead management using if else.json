@@ -1,0 +1,232 @@
+{
+  "name": "lead management using if else",
+  "nodes": [
+    {
+      "parameters": {
+        "formTitle": "lead management using if else",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "name",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "email",
+              "fieldType": "email",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "interest",
+              "requiredField": true
+            }
+          ]
+        },
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.3,
+      "position": [
+        0,
+        0
+      ],
+      "id": "de727a1a-b7b1-4007-993a-179b7cad2520",
+      "name": "On form submission",
+      "webhookId": "5ba3e0cb-558f-4d65-a894-429a2c5f469a"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=your lead manager of my you keep \nname :{{ $json.name }}\nemail :{{ $json.email }}\ninterst:{{ $json.interest }}",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        208,
+        0
+      ],
+      "id": "dc5fbf02-a35e-4a25-9236-7bdbb76ba5aa",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        80,
+        224
+      ],
+      "id": "1ec93fed-3c8c-4258-9fb8-8a38e16bf3eb",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "ZwBzOzlOZzcXo8vQ",
+          "name": "Google Gemini(PaLM) Api account 721"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "5b26b9c6-09a2-4d18-be8e-5cabe70c2d33",
+              "leftValue": "={{ $('On form submission').item.json.interest }}",
+              "rightValue": "ML",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            },
+            {
+              "id": "c9bff926-e879-4671-a37c-735ee9d4cc5a",
+              "leftValue": "",
+              "rightValue": "=",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        656,
+        160
+      ],
+      "id": "25412e0a-5348-4946-b74f-73337f0984f5",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('On form submission').item.json.email }}",
+        "subject": "={{ $('On form submission').item.json.name }}\nyour machine learning confirmation",
+        "message": "=dear {{ $('On form submission').item.json.name }} welcome to our ml course we hope u enjoy",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        864,
+        64
+      ],
+      "id": "3e59d660-20e5-4723-9b13-29e16f5a0fa1",
+      "name": "Send a message",
+      "webhookId": "59216c09-3334-4d16-823b-2408be64246b",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "zqHvTTKvfZi6vGVx",
+          "name": "Gmail account 537"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C09V1KZHB6X",
+          "mode": "list",
+          "cachedResultName": "automation"
+        },
+        "text": "={{ $('On form submission').item.json.name }}\nis interest in{{ $('On form submission').item.json.interest }} email:{{ $('On form submission').item.json.email }}\nplease add him on slack",
+        "otherOptions": {}
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        864,
+        256
+      ],
+      "id": "c3552426-78b1-43af-8c96-32706eab812c",
+      "name": "Send a message1",
+      "webhookId": "ecc26c9a-baa7-4c08-915b-af0a60224d11",
+      "credentials": {
+        "slackApi": {
+          "id": "ThSrK3NrXyzskgOi",
+          "name": "practice"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "On form submission": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send a message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "22195787-a064-45c4-989e-5048125264ac",
+  "meta": {
+    "instanceId": "8aa7a6b00703250dcbefcb510baac06d8bd02203b4f9c49a6f275db8e3adde34"
+  },
+  "id": "LD14gNhBbgQVsUJj",
+  "tags": []
+}

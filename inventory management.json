@@ -1,0 +1,231 @@
+{
+  "name": "inventory management",
+  "nodes": [
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        0,
+        0
+      ],
+      "id": "4f693824-e27f-4671-81b7-4331d1448162",
+      "name": "When chat message received",
+      "webhookId": "b488881b-fc86-4d27-9dd5-74ba3016a56b"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        352,
+        0
+      ],
+      "id": "10bacc8a-ff17-4315-87cb-40b1a7bbabf9",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        224,
+        224
+      ],
+      "id": "80ddd6e0-81b1-4b01-9028-469077c72fd0",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "ZwBzOzlOZzcXo8vQ",
+          "name": "Google Gemini(PaLM) Api account 721"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        352,
+        224
+      ],
+      "id": "5f67475b-acbb-44d4-8060-22cdd6bcf78d",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1ApiG_kf6nZo5zcbKVsW6OmkubOP_FcvfLsbWTiXFjjQ",
+          "mode": "list",
+          "cachedResultName": "inventory_list",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1ApiG_kf6nZo5zcbKVsW6OmkubOP_FcvfLsbWTiXFjjQ/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1788387546,
+          "mode": "list",
+          "cachedResultName": "Sheet",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1ApiG_kf6nZo5zcbKVsW6OmkubOP_FcvfLsbWTiXFjjQ/edit#gid=1788387546"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        480,
+        224
+      ],
+      "id": "ca5f835d-6f02-4604-8c86-f1cf8217ad2c",
+      "name": "Get row(s) in sheet in Google Sheets",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "Z2tFcCPcueAT3W1y",
+          "name": "Google Sheets account 622"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "1ApiG_kf6nZo5zcbKVsW6OmkubOP_FcvfLsbWTiXFjjQ",
+          "mode": "list",
+          "cachedResultName": "inventory_list",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1ApiG_kf6nZo5zcbKVsW6OmkubOP_FcvfLsbWTiXFjjQ/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1788387546,
+          "mode": "list",
+          "cachedResultName": "Sheet",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1ApiG_kf6nZo5zcbKVsW6OmkubOP_FcvfLsbWTiXFjjQ/edit#gid=1788387546"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "item": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('item__using_to_match_', ``, 'string') }}",
+            "Quantity in Stock": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Quantity_in_Stock', ``, 'string') }}"
+          },
+          "matchingColumns": [
+            "item"
+          ],
+          "schema": [
+            {
+              "id": "item",
+              "displayName": "item",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Quantity in Stock",
+              "displayName": "Quantity in Stock",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        704,
+        224
+      ],
+      "id": "9f6ec0f0-dc58-455a-8e22-0edb4dbb2c56",
+      "name": "update_inventory_list",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "Z2tFcCPcueAT3W1y",
+          "name": "Google Sheets account 622"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet in Google Sheets": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "update_inventory_list": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "f46fd6c1-5fc4-40fe-bee2-f6e411335e88",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "8aa7a6b00703250dcbefcb510baac06d8bd02203b4f9c49a6f275db8e3adde34"
+  },
+  "id": "1JKf2T4lz6FfHymK",
+  "tags": []
+}

@@ -1,0 +1,300 @@
+{
+  "name": "Info Divide based on country",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        32
+      ],
+      "id": "61fd4b77-0366-465d-9348-df2b14e7010a",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "operation": "getAllPeople"
+      },
+      "type": "n8n-nodes-base.n8nTrainingCustomerDatastore",
+      "typeVersion": 1,
+      "position": [
+        224,
+        32
+      ],
+      "id": "acd538ff-ca49-4601-8b11-a10efa8b2c7e",
+      "name": "Customer Datastore (n8n training)"
+    },
+    {
+      "parameters": {
+        "operation": "search",
+        "base": {
+          "__rl": true,
+          "value": "appi7z8t8C6h7CVvn",
+          "mode": "list",
+          "cachedResultName": "user info",
+          "cachedResultUrl": "https://airtable.com/appi7z8t8C6h7CVvn"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblGP2Rx15mrtGzWh",
+          "mode": "list",
+          "cachedResultName": "my user",
+          "cachedResultUrl": "https://airtable.com/appi7z8t8C6h7CVvn/tblGP2Rx15mrtGzWh"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        448,
+        32
+      ],
+      "id": "90ff7b58-ca58-45fc-91b4-5b5ec22d84a2",
+      "name": "Search records",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "MXGKfm64t9p4oXfg",
+          "name": "user_info_er_lagi"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "5addcdc6-8cbf-4dba-836b-1a2fed2eca64",
+              "name": "Full Name",
+              "value": "={{ $json['First Name'] }} {{ $json['Last Name'] }}",
+              "type": "string"
+            },
+            {
+              "id": "a0f86677-ed17-4b41-840a-6f92fb40ce3d",
+              "name": "Email",
+              "value": "={{ $json.Email }}",
+              "type": "string"
+            },
+            {
+              "id": "0517f947-d0c9-4511-9c1e-b019b4f8287a",
+              "name": "Phone  Number",
+              "value": "={{ $json['Phone 1'] }}",
+              "type": "string"
+            },
+            {
+              "id": "e3ecae2f-c90b-4f37-9246-1da5ce25ba87",
+              "name": "Country",
+              "value": "={{ $json.Country }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        672,
+        32
+      ],
+      "id": "79bff891-f6a1-40fe-bf44-1c0495f18ed4",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "0f8b2fae-7a7c-4f04-ac82-0cb79a8970fe",
+              "leftValue": "={{ $json.Country }}",
+              "rightValue": "Panama",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        896,
+        32
+      ],
+      "id": "8868552a-3f42-474b-8589-8ca008955a50",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "53524211-42ba-4ce2-8993-6220f17bfd61",
+              "name": "Full Name",
+              "value": "={{ $json['Full Name'] }}",
+              "type": "string"
+            },
+            {
+              "id": "0748dc9b-d5e4-4b22-afd3-a944325eedc2",
+              "name": "Phone  Number",
+              "value": "={{ $json['Phone  Number'] }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        0,
+        352
+      ],
+      "id": "4b8ca467-3bf0-424b-9cad-830c8af5b52f",
+      "name": "Edit Fields2"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "53524211-42ba-4ce2-8993-6220f17bfd61",
+              "name": "Full Name",
+              "value": "={{ $json['Full Name'] }}",
+              "type": "string"
+            },
+            {
+              "id": "0748dc9b-d5e4-4b22-afd3-a944325eedc2",
+              "name": "Phone  Number",
+              "value": "={{ $json['Phone  Number'] }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1120,
+        -64
+      ],
+      "id": "6074a225-d95e-4bc6-a238-a505b22746f9",
+      "name": "Panama Data"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "53524211-42ba-4ce2-8993-6220f17bfd61",
+              "name": "Full Name",
+              "value": "={{ $json['Full Name'] }}",
+              "type": "string"
+            },
+            {
+              "id": "0748dc9b-d5e4-4b22-afd3-a944325eedc2",
+              "name": "Phone  Number",
+              "value": "={{ $json['Phone  Number'] }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1120,
+        128
+      ],
+      "id": "dfdca76b-e360-4543-ab7b-cd6e2f73615d",
+      "name": "Foreign Data"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Customer Datastore (n8n training)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Customer Datastore (n8n training)": {
+      "main": [
+        [
+          {
+            "node": "Search records",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search records": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Panama Data",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Foreign Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "7bdfde91-9366-40f1-9c1c-a3be6b59f676",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "8aa7a6b00703250dcbefcb510baac06d8bd02203b4f9c49a6f275db8e3adde34"
+  },
+  "id": "7UrctnBxGDmNW76o",
+  "tags": []
+}
